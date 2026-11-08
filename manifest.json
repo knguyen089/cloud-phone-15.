@@ -1,0 +1,9 @@
+{
+  "name": "CLOUD PHONE 15",
+  "short_name": "Cloud Phone",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#101827",
+  "description": "Quản lý Cloud Phone 15"
+}
