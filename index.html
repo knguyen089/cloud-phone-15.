@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>CLOUD PHONE 15</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1220;color:#f4f7ff;font-family:Arial,sans-serif}
+header{padding:22px 18px;background:#111d30;border-bottom:1px solid #26364e}
+.logo{font-size:23px;font-weight:800;letter-spacing:1px}
+.logo span{color:#55aaff}
+header p{color:#9eacc1;margin:8px 0 0;font-size:13px}
+main{max-width:850px;margin:auto;padding:18px}
+.panel{background:#142238;border:1px solid #263c59;border-radius:15px;padding:17px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 14px}
+.info{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.muted{color:#9eacc1;font-size:13px}
+.big{font-size:25px;font-weight:bold;color:#64b5ff}
+.devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.device{background:#1a2c45;border:1px solid #304765;border-radius:13px;padding:15px}
+.phone{width:47px;height:68px;border:3px solid #76baff;border-radius:9px;margin-bottom:13px;position:relative}
+.phone:after{content:"";position:absolute;width:13px;height:3px;border-radius:5px;background:#76baff;bottom:4px;left:14px}
+.device h3{margin:0 0 7px;font-size:16px}
+.status{font-size:12px;color:#ffbd62;margin-bottom:13px}
+.status.on{color:#53e3a1}
+button{border:0;border-radius:9px;padding:11px 14px;background:#2789e8;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#33465f}
+button:disabled{opacity:.5}
+input{width:100%;padding:13px;border-radius:9px;border:1px solid #405875;background:#0d192a;color:white;margin:8px 0 12px;font-size:15px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+footer{text-align:center;color:#71829b;font-size:12px;padding:20px}
+.notice{color:#f5c978;font-size:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">CLOUD <span>PHONE 15</span></div>
+ <p>Quản lý thiết bị Android trên đám mây</p>
+</header>
+<main>
+ <section class="panel">
+  <div class="info">
+   <div><div class="muted">Tài khoản của bạn</div><b>Chiến Binh</b></div>
+   <div style="text-align:right"><div class="muted">Gói dịch vụ</div><b id="plan">Dùng thử</b></div>
+  </div>
+  <hr style="border-color:#30415a;margin:17px 0">
+  <div class="muted">Thời gian sử dụng còn lại</div>
+  <div class="big" id="time">03:00:00</div>
+ </section>
 
+ <h2>Thiết bị của tôi · 3 máy</h2>
+ <section class="devices" id="devices"></section>
+
+ <section class="panel" style="margin-top:18px">
+  <h2>Kích hoạt dịch vụ</h2>
+  <div class="muted">Nhập mã kích hoạt do quản trị viên cấp.</div>
+  <input id="code" placeholder="Nhập mã kích hoạt">
+  <div class="actions">
+   <button onclick="redeem()">Kích hoạt</button>
+  </div>
+  <p id="message" class="muted"></p>
+ </section>
+
+ <section class="panel">
+  <h2>Thông tin hệ thống</h2>
+  <p class="muted">Phiên bản giao diện: 1.0</p>
+  <p class="muted">Số thiết bị: 3</p>
+  <p class="notice">Đây là bản giao diện thử nghiệm. Nút bật/tắt hiện chỉ mô phỏng trạng thái. Muốn chạy Android 15 thật cần máy chủ tương thích và hệ thống kết nối bảo mật.</p>
+ </section>
+</main>
+<footer>CLOUD PHONE 15 · Android Cloud Platform</footer>
+
+<script>
+const KEY="cloudphone15_demo";
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{
+ remaining:10800,paid:false,devices:[false,false,false],codes:[]
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function render(){
+ document.getElementById("plan").textContent=data.paid?"30 ngày kích hoạt":"Dùng thử";
+ let s=data.remaining,h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
+ document.getElementById("time").textContent=
+  String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+ document.getElementById("devices").innerHTML=data.devices.map((on,i)=>`
+ <div class="device">
+  <div class="phone"></div>
+  <h3>Android 15 · Máy ${i+1}</h3>
+  <div class="status ${on?"on":""}">${on?"Đang bật (mô phỏng)":"Đang tắt"}</div>
+  <button class="${on?"secondary":""}" onclick="toggle(${i})">${on?"Tắt máy":"Bật máy"}</button>
+ </div>`).join("");
+}
+function toggle(i){
+ if(data.remaining<=0&&!data.paid){alert("Thời gian dùng thử đã hết.");return}
+ data.devices[i]=!data.devices[i];save();render();
+}
+function redeem(){
+ let c=document.getElementById("code").value.trim();
+ if(!c){message("Vui lòng nhập mã.");return}
+ if(data.codes.includes(c)){message("Mã này đã được sử dụng.");return}
+ // Mã thử nghiệm trên trình duyệt, không phải hệ thống thanh toán thật.
+ if(c==="CP15-DEMO-30"){
+  data.paid=true;data.remaining=30*24*3600;data.codes.push(c);
+  save();render();message("Đã kích hoạt bản DEMO 30 ngày trên thiết bị này!");
+ }else message("Mã không hợp lệ.");
+}
+function message(t){document.getElementById("message").textContent=t}
+setInterval(()=>{
+ if(!data.paid&&data.remaining>0){
+  data.remaining--;save();render();
+ }
+},1000);
+render();
+</script>
+</body>
+</html>
